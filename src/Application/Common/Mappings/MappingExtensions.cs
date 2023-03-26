@@ -1,9 +1,9 @@
-﻿using AutoMapper;
+﻿using Application.Common.Models;
+using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using CleanArchitecture.Application.Common.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace CleanArchitecture.Application.Common.Mappings;
+namespace Application.Common.Mappings;
 
 public static class MappingExtensions
 {

@@ -1,10 +1,9 @@
 ﻿using System.Globalization;
-using CleanArchitecture.Application.Common.Interfaces;
-using CleanArchitecture.Application.TodoLists.Queries.ExportTodos;
-using CleanArchitecture.Infrastructure.Files.Maps;
+using Application.TodoLists.Queries.ExportTodos;
 using CsvHelper;
+using Infrastructure.Files.Maps;
 
-namespace CleanArchitecture.Infrastructure.Files;
+namespace Infrastructure.Files;
 
 public class CsvFileBuilder : ICsvFileBuilder
 {

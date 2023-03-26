@@ -1,4 +1,8 @@
-﻿namespace CleanArchitecture.Domain.Entities;
+﻿using Domain.Common;
+using Domain.Enums;
+using Domain.Events;
+
+namespace Domain.Entities;
 
 public class TodoItem : BaseAuditableEntity
 {

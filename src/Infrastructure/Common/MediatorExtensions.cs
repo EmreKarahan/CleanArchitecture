@@ -1,7 +1,4 @@
-﻿using CleanArchitecture.Domain.Common;
-using Microsoft.EntityFrameworkCore;
-
-namespace MediatR;
+﻿namespace Infrastructure.Common;
 
 public static class MediatorExtensions
 {
@@ -21,4 +18,7 @@ public static class MediatorExtensions
         foreach (var domainEvent in domainEvents)
             await mediator.Publish(domainEvent);
     }
+    
+    
 }
+

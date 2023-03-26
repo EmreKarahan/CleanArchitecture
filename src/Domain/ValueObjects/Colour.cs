@@ -1,4 +1,7 @@
-﻿namespace CleanArchitecture.Domain.ValueObjects;
+﻿using Domain.Common;
+using Domain.Exceptions;
+
+namespace Domain.ValueObjects;
 
 public class Colour : ValueObject
 {

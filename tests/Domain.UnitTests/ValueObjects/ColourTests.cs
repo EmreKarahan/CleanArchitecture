@@ -1,5 +1,5 @@
-﻿using CleanArchitecture.Domain.Exceptions;
-using CleanArchitecture.Domain.ValueObjects;
+﻿using Domain.Exceptions;
+using Domain.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 
