@@ -7,12 +7,16 @@ using ICategoryApiService = Minima.MarketPlace.NOnbir.Services.ICategoryApiServi
 
 namespace Infrastructure.Quartz.NOnbir;
 
-//[ScheduledJob("UpdateCategoryAttributeJob", "N11", "UpdateCategoryAttributeJobTrigger", "N11", "0 /1 * ? * *")]
-public class UpdateCategoryAttributeJob : IJob
+[ScheduledJob("UpdateCategoryAttributeJob", "N11", "UpdateCategoryAttributeJobTrigger", "N11", "0 /1 * ? * *")]
+public class UpdateCategoryAttributeJob : IJob, IDisposable
 {
     readonly ICategoryApiService _categoryApiService;
     readonly IRepository<Attribute> _attributeRepository;
     readonly IRepository<Category> _categoryRepository;
+    
+    // boolean variable to ensure dispose
+    // method executes only once
+    private bool disposedValue;
 
     public UpdateCategoryAttributeJob(
         ICategoryApiService categoryApiService, 
@@ -26,8 +30,14 @@ public class UpdateCategoryAttributeJob : IJob
     
     public async Task Execute(IJobExecutionContext context)
     {
-        //throw new NotImplementedException();
-        GetCategoryAttributes(1000000).GetAwaiter().GetResult();
+        
+        string instName = context.JobDetail.Key.Name;
+        JobDataMap dataMap = context.JobDetail.JobDataMap;
+
+        long categoryId = dataMap.GetLongValue("categoryId");
+        Console.WriteLine("Instance {0} of DumbJob says: {1}", instName, categoryId);
+
+        GetCategoryAttributes(categoryId).GetAwaiter().GetResult();
     }
     
     public async Task GetCategoryAttributes(long categoryId)
@@ -78,5 +88,32 @@ public class UpdateCategoryAttributeJob : IJob
         
     }
 
+    // Gets called by the below dispose method
+    // resource cleaning happens here
+    protected virtual void Dispose(bool disposing)
+    {
+        // check if already disposed
+        if (!disposedValue) {
+            if (disposing) {
+                // free managed objects here
+                
+            }
+            // free unmanaged objects here
+            Console.WriteLine("The {0} has been disposed", this.GetType().Name);
 
+            // set the bool value to true
+            disposedValue = true;
+        }
+    }
+    public void Dispose()
+    {
+        // Invoke the above virtual
+        // dispose(bool disposing) method
+        Dispose(disposing : true);
+  
+        // Notify the garbage collector
+        // about the cleaning event
+        GC.SuppressFinalize(this);
+    }
+    ~UpdateCategoryAttributeJob() { Dispose(disposing : false); }
 }

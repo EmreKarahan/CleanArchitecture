@@ -1,3 +1,5 @@
+using Domain.Entities.NOnbir;
+using Infrastructure.Quartz.NOnbir;
 using Shared.Attributes;
 
 namespace Infrastructure.Quartz;
@@ -7,7 +9,7 @@ public static class Startup
     public static IServiceCollection AddScheduledJob(this IServiceCollection services, IConfiguration configuration)
     {
 
-        var scheduler = CreateScheduler();
+        var scheduler = CreateScheduler(services);
         scheduler.JobFactory = new MyJobFactory(services.BuildServiceProvider());
         services.AddSingleton(scheduler);
         services.AddHostedService<QuartzHostedService>();
@@ -18,42 +20,21 @@ public static class Startup
     public static WebApplication UseScheduledJob(this WebApplication application)
     {
         var scheduler =  application.Services.GetService<IScheduler>();
-        
-        
         application.UseQuartzmon(new QuartzmonOptions() {Scheduler = scheduler});
-        // application.UseQuartzmon(new QuartzmonOptions()
-        // {
-        //     Scheduler = StdSchedulerFactory.GetDefaultScheduler().Result
-        // });
-
         return application;
     }
 
-    private static IScheduler CreateScheduler()
+    private static IScheduler CreateScheduler(IServiceCollection services)
     {
-        
+        var provider = services.BuildServiceProvider();
+
+        var categoryRepository = provider.GetService<IRepository<Category>>();
+        var n11TopCategories = categoryRepository.GetAllBy(p => p.ParentId == null).ToList();
+        var n11DeepestCategories = categoryRepository.GetAllBy(p => p.IsDeepest).ToList();
         
         var schedulerFactory = new StdSchedulerFactory();
         var scheduler = schedulerFactory.GetScheduler().Result;
-
         
-
-        // var job = JobBuilder.Create<Infrastructure.Quartz.NOnbir.UpdateCategoryAttributeJob>()
-        //     .WithIdentity(nameof(UpdateCategoryAttributeJob), "default")
-        //     .Build();
-        //
-        //
-        //
-        // var trigger = TriggerBuilder.Create()
-        //     .WithIdentity($"{nameof(UpdateCategoryAttributeJob)}_Trigger", "default")
-        //     .ForJob(job)
-        //     .StartNow()
-        //     .WithCronSchedule("0 /1 * ? * *")
-        //     .Build();
-        //
-        // scheduler.ScheduleJob(job, trigger);
-
-
         var jobs = GetJobs();
 
         foreach (Type jobType in jobs)
@@ -62,21 +43,79 @@ public static class Startup
             
             if(jobAttribute == null)
                 continue;
-            
-            var job = JobBuilder.Create(jobType)
-                .WithIdentity($"{jobAttribute.IdentityName}_{jobAttribute.IdentityGroup}", jobAttribute.IdentityGroup)
-                .Build();
+
+            if (jobType == typeof(UpdateSubCategoryJob))
+            {
+
+                var minuteAdd = 0;
+                foreach (var categoryItem in n11TopCategories)
+                {
+                    
+                    var job = JobBuilder.Create(jobType)
+                        .WithIdentity($"{jobAttribute.IdentityName}_{categoryItem.InternalId}_{jobAttribute.IdentityGroup}", jobAttribute.IdentityGroup)
+                        .UsingJobData("parentCategoryId", categoryItem.InternalId)
+                        .Build();
             
         
         
-            var trigger = TriggerBuilder.Create()
-                .WithIdentity($"{jobAttribute.TriggerName}_{jobAttribute.TriggerGroup}_Trigger", jobAttribute.TriggerGroup)
-                .ForJob(job)
-                .StartNow()
-                .WithCronSchedule(jobAttribute.CronSchedule)
-                .Build();
+                    var trigger = TriggerBuilder.Create()
+                        .WithIdentity($"{jobAttribute.TriggerName}_{categoryItem.InternalId}_{jobAttribute.TriggerGroup}_Trigger", jobAttribute.TriggerGroup)
+                        .ForJob(job)
+                        //.StartNow()
+                        .StartAt(DateTime.Now.AddMinutes(minuteAdd))
+                        .WithSchedule(SimpleScheduleBuilder.RepeatMinutelyForever(20))
+                        //.WithCronSchedule(jobAttribute.CronSchedule)
+                        .Build();
+                    scheduler.ScheduleJob(job, trigger);
+                    minuteAdd +=2;
+                }
+            }
             
-            scheduler.ScheduleJob(job, trigger);
+            else if (jobType  == typeof(UpdateCategoryAttributeJob))
+            {
+                var minuteAdd = 0;
+                foreach (var categoryItem in n11DeepestCategories)
+                {
+                    var job = JobBuilder.Create(jobType)
+                        .WithIdentity($"{jobAttribute.IdentityName}_{categoryItem.InternalId}_{jobAttribute.IdentityGroup}", jobAttribute.IdentityGroup)
+                        .UsingJobData("categoryId", categoryItem.InternalId)
+                        .Build();
+            
+        
+        
+                    var trigger = TriggerBuilder.Create()
+                        .WithIdentity($"{jobAttribute.TriggerName}_{categoryItem.InternalId}_{jobAttribute.TriggerGroup}_Trigger", jobAttribute.TriggerGroup)
+                        .ForJob(job)
+                        //.StartNow()
+                        //.WithCronSchedule(jobAttribute.CronSchedule)
+                        .StartAt(DateTime.Now.AddMinutes(minuteAdd))
+                        .WithSchedule(SimpleScheduleBuilder.RepeatMinutelyForever(20))
+                        //.WithCronSchedule(jobAttribute.CronSchedule)
+                        .Build();
+                    scheduler.ScheduleJob(job, trigger);
+                    minuteAdd +=2;
+                }
+            }
+            else
+            {
+                // var job = JobBuilder.Create(jobType)
+                //     .WithIdentity($"{jobAttribute.IdentityName}_{jobAttribute.IdentityGroup}", jobAttribute.IdentityGroup)
+                //     .Build();
+                //
+                //
+                //
+                // var trigger = TriggerBuilder.Create()
+                //     .WithIdentity($"{jobAttribute.TriggerName}_{jobAttribute.TriggerGroup}_Trigger", jobAttribute.TriggerGroup)
+                //     .ForJob(job)
+                //     .StartNow()
+                //     .WithCronSchedule(jobAttribute.CronSchedule)
+                //     .Build();      
+                // scheduler.ScheduleJob(job, trigger);
+            }
+            
+
+            
+
         }
 
 
