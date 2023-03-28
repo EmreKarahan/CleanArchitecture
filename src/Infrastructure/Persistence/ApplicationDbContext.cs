@@ -1,4 +1,7 @@
-﻿namespace Infrastructure.Persistence;
+﻿using Domain.Entities.NOnbir;
+using Attribute = Domain.Entities.NOnbir.Attribute;
+
+namespace Infrastructure.Persistence;
 
 public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
@@ -18,6 +21,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<TodoList> TodoLists => Set<TodoList>();
 
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+    public DbSet<Category> N11Category => Set<Category>();
+    public DbSet<Attribute> N11Attribute => Set<Attribute>();
+    public DbSet<AttributeValue> N11AttributeValue => Set<AttributeValue>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

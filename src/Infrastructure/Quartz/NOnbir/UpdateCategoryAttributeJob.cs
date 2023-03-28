@@ -1,9 +1,11 @@
+using Application.N11.Commands;
 using Domain.Entities.NOnbir;
 using Minima.MarketPlace.NOnbir.Models.ReturnType.Category.Requests;
 using Minima.MarketPlace.NOnbir.Models.Service.Category.Types;
 using Shared.Attributes;
 using Attribute = Domain.Entities.NOnbir.Attribute;
 using ICategoryApiService = Minima.MarketPlace.NOnbir.Services.ICategoryApiService;
+
 
 namespace Infrastructure.Quartz.NOnbir;
 
@@ -13,6 +15,7 @@ public class UpdateCategoryAttributeJob : IJob, IDisposable
     readonly ICategoryApiService _categoryApiService;
     readonly IRepository<Attribute> _attributeRepository;
     readonly IRepository<Category> _categoryRepository;
+    IMediator _mediator;
     
     // boolean variable to ensure dispose
     // method executes only once
@@ -21,11 +24,13 @@ public class UpdateCategoryAttributeJob : IJob, IDisposable
     public UpdateCategoryAttributeJob(
         ICategoryApiService categoryApiService, 
         IRepository<Attribute> attributeRepository, 
-        IRepository<Category> categoryRepository)
+        IRepository<Category> categoryRepository, 
+        IMediator mediator)
     {
         _categoryApiService = categoryApiService;
         _attributeRepository = attributeRepository;
         _categoryRepository = categoryRepository;
+        _mediator = mediator;
     }
     
     public async Task Execute(IJobExecutionContext context)
@@ -39,8 +44,8 @@ public class UpdateCategoryAttributeJob : IJob, IDisposable
 
         GetCategoryAttributes(categoryId).GetAwaiter().GetResult();
     }
-    
-    public async Task GetCategoryAttributes(long categoryId)
+
+    private async Task GetCategoryAttributes(long categoryId)
     {
         var category = _categoryRepository.GetBy(i => i.InternalId == categoryId);
         var categoryAttributesResponse = _categoryApiService.GetCategoryAttributes(new GetCategoryAttributesRequestReturn
@@ -68,22 +73,27 @@ public class UpdateCategoryAttributeJob : IJob, IDisposable
                 Priority = data.Priority,
                 CategoryId = category.Id
             };
-            attribute.AttributeValues = data.ValueList.Select(s => new AttributeValue
+            var createAttributeCommand = new CreateAttributeCommand
             {
-                //InternalId = s.Id, 
+                InternalId = data.Id,
+                Name = data.Name,
+                Mandatory = data.Mandatory,
+                MultipleSelect = data.MultipleSelect,
+                Priority = data.Priority,
+                CategoryId = category.Id
+            };
+            var attributeId = await _mediator.Send(createAttributeCommand);
+            
+            var createAttributeValueCommands = data.ValueList.Select(s => new CreateAttributeValueCommand()
+            {
+                AttributeId = attributeId,
                 Name = s.Name,
                 DependedName = s.DependedName
             }).ToList();
-            try
+            foreach (var createAttributeValueCommand in createAttributeValueCommands)
             {
-                _attributeRepository.Insert(attribute);
+                await _mediator.Send(createAttributeValueCommand);
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            
-
         }
         
     }

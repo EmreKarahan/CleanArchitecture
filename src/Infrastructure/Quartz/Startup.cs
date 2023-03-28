@@ -29,7 +29,8 @@ public static class Startup
         var provider = services.BuildServiceProvider();
 
         var categoryRepository = provider.GetService<IRepository<Category>>();
-        var n11TopCategories = categoryRepository.GetAllBy(p => p.ParentId == null).ToList();
+        var n11TopCategories = categoryRepository.GetAllBy(p => p.InternalParentId is null).OrderByDescending(o => o.Id)
+            .ToList();
         var n11DeepestCategories = categoryRepository.GetAllBy(p => p.IsDeepest).ToList();
         
         var schedulerFactory = new StdSchedulerFactory();
@@ -62,39 +63,39 @@ public static class Startup
                         .WithIdentity($"{jobAttribute.TriggerName}_{categoryItem.InternalId}_{jobAttribute.TriggerGroup}_Trigger", jobAttribute.TriggerGroup)
                         .ForJob(job)
                         //.StartNow()
-                        .StartAt(DateTime.Now.AddMinutes(minuteAdd))
+                        .StartAt(DateTime.Now.AddSeconds(minuteAdd))
                         .WithSchedule(SimpleScheduleBuilder.RepeatMinutelyForever(20))
                         //.WithCronSchedule(jobAttribute.CronSchedule)
                         .Build();
                     scheduler.ScheduleJob(job, trigger);
-                    minuteAdd +=2;
+                    minuteAdd +=10;
                 }
             }
             
             else if (jobType  == typeof(UpdateCategoryAttributeJob))
             {
-                var minuteAdd = 0;
-                foreach (var categoryItem in n11DeepestCategories)
-                {
-                    var job = JobBuilder.Create(jobType)
-                        .WithIdentity($"{jobAttribute.IdentityName}_{categoryItem.InternalId}_{jobAttribute.IdentityGroup}", jobAttribute.IdentityGroup)
-                        .UsingJobData("categoryId", categoryItem.InternalId)
-                        .Build();
-            
-        
-        
-                    var trigger = TriggerBuilder.Create()
-                        .WithIdentity($"{jobAttribute.TriggerName}_{categoryItem.InternalId}_{jobAttribute.TriggerGroup}_Trigger", jobAttribute.TriggerGroup)
-                        .ForJob(job)
-                        //.StartNow()
-                        //.WithCronSchedule(jobAttribute.CronSchedule)
-                        .StartAt(DateTime.Now.AddMinutes(minuteAdd))
-                        .WithSchedule(SimpleScheduleBuilder.RepeatMinutelyForever(20))
-                        //.WithCronSchedule(jobAttribute.CronSchedule)
-                        .Build();
-                    scheduler.ScheduleJob(job, trigger);
-                    minuteAdd +=2;
-                }
+                // var minuteAdd = 0;
+                // foreach (var categoryItem in n11DeepestCategories)
+                // {
+                //     var job = JobBuilder.Create(jobType)
+                //         .WithIdentity($"{jobAttribute.IdentityName}_{categoryItem.InternalId}_{jobAttribute.IdentityGroup}", jobAttribute.IdentityGroup)
+                //         .UsingJobData("categoryId", categoryItem.InternalId)
+                //         .Build();
+                //
+                //
+                //
+                //     var trigger = TriggerBuilder.Create()
+                //         .WithIdentity($"{jobAttribute.TriggerName}_{categoryItem.InternalId}_{jobAttribute.TriggerGroup}_Trigger", jobAttribute.TriggerGroup)
+                //         .ForJob(job)
+                //         //.StartNow()
+                //         //.WithCronSchedule(jobAttribute.CronSchedule)
+                //         .StartAt(DateTime.Now.AddMinutes(minuteAdd))
+                //         .WithSchedule(SimpleScheduleBuilder.RepeatMinutelyForever(20))
+                //         //.WithCronSchedule(jobAttribute.CronSchedule)
+                //         .Build();
+                //     scheduler.ScheduleJob(job, trigger);
+                //     minuteAdd +=2;
+                // }
             }
             else
             {

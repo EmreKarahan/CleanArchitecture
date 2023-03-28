@@ -1,8 +1,10 @@
+using Application.N11.Commands;
 using Domain.Entities.NOnbir;
 using Minima.MarketPlace.NOnbir.Models.ReturnType.Category.Requests;
 using Minima.MarketPlace.NOnbir.Models.Service.Category.Types;
 using Shared.Attributes;
 using ICategoryApiService = Minima.MarketPlace.NOnbir.Services.ICategoryApiService;
+
 
 namespace Infrastructure.Quartz.NOnbir;
 
@@ -11,18 +13,22 @@ public class UpdateSubCategoryJob : IJob, IDisposable
 {
     readonly ICategoryApiService _categoryApiService;
     readonly IRepository<Category> _categoryRepository;
+    readonly IMediator _mediator;
 
     // boolean variable to ensure dispose
     // method executes only once
     private bool disposedValue;
+
     public UpdateSubCategoryJob(
         ICategoryApiService categoryApiService,
-        IRepository<Category> categoryRepository)
+        IRepository<Category> categoryRepository, 
+        IMediator mediator)
     {
         _categoryApiService = categoryApiService;
         _categoryRepository = categoryRepository;
+        _mediator = mediator;
     }
-    
+
     public async Task Execute(IJobExecutionContext context)
     {
         string instName = context.JobDetail.Key.Name;
@@ -30,20 +36,20 @@ public class UpdateSubCategoryJob : IJob, IDisposable
 
         long parentCategoryId = dataMap.GetLongValue("parentCategoryId");
         Console.WriteLine("Instance {0} of DumbJob says: {1}", instName, parentCategoryId);
-        GetSubCategories(parentCategoryId);
+        await GetSubCategories(parentCategoryId);
     }
 
-    private void GetSubCategories(long parentCategoryId)
+    private async Task GetSubCategories(long parentCategoryId)
     {
         var topLevelCategory = _categoryRepository.GetBy(p => p.InternalId == parentCategoryId);
         if (topLevelCategory == null)
             return;
-        
-        GetSubCategoryList(topLevelCategory.InternalId, topLevelCategory);
+
+        await GetSubCategoryList(topLevelCategory.InternalId, topLevelCategory);
     }
 
 
-    private void GetSubCategoryList(long parentCategoryId, Category category)
+    private async Task GetSubCategoryList(long parentCategoryId, Category category)
     {
         try
         {
@@ -54,7 +60,7 @@ public class UpdateSubCategoryJob : IJob, IDisposable
             // {
             //     Console.WriteLine($"{category.Name} es geçildi.");
             // }
-            
+
             var subCategories = _categoryApiService.GetSubCategories(new GetSubCategoriesRequestReturn
             {
                 CategoryId = parentCategoryId
@@ -66,9 +72,12 @@ public class UpdateSubCategoryJob : IJob, IDisposable
                 if (subCategories?.Category?.FirstOrDefault()?.SubCategoryList is null)
                 {
                     var categoryTemp = _categoryRepository.GetBy(i => i.InternalId == category.InternalId);
-                    categoryTemp.IsDeepest = true;
-                    categoryTemp.HasError = false;
-                    _categoryRepository.Update(categoryTemp);
+
+                    var updateCategoryCommand = new UpdateCategoryCommand
+                    {
+                        Id = categoryTemp.Id, IsDeepest = true, HasError = false,
+                    };
+                    await _mediator.Send(updateCategoryCommand);
                 }
                 else
                 {
@@ -86,19 +95,13 @@ public class UpdateSubCategoryJob : IJob, IDisposable
                                     InternalId = subCategory.Id,
                                     InternalParentId = category.InternalId,
                                 };
-                                //
-                                // var subCategoryParent =
-                                //     _categoryRepository.GetBy(p => p.InternalParentId == category.InternalId);
 
-                                // if (subCategoryParent is not null)
-                                //     subCategory2.ParentId = subCategoryParent.Id;
 
                                 if (category is not null)
                                 {
                                     if (category.Id == 0)
                                     {
                                         category = _categoryRepository.GetBy(g => g.InternalId == category.InternalId);
-                                        //_categoryRepository.Insert(category);
                                     }
 
                                     subCategory2.ParentId = category.Id;
@@ -107,30 +110,48 @@ public class UpdateSubCategoryJob : IJob, IDisposable
                                 var categoryCheck =
                                     _categoryRepository.GetBy(p => p.InternalId == subCategory2.InternalId);
                                 if (categoryCheck is null)
-                                    _categoryRepository.Insert(subCategory2);
+                                {
+                                    var categoryCreateCommand = new CreateCategoryCommand
+                                    {
+                                        Name = subCategory2.Name,
+                                        InternalId = subCategory2.Id,
+                                        InternalParentId = subCategory2.InternalId,
+                                        ParentId = subCategory2.Id
+                                    };
+                                    
+                                    await _mediator.Send(categoryCreateCommand);
+                                }
+
                                 else
                                 {
-                                    var subCategory2Temp = _categoryRepository.GetBy(t => t.InternalId == subCategory2.InternalId);
-                                    subCategory2Temp.ParentId = category.Id;
-                                    _categoryRepository.Update(subCategory2Temp);
+                                    var subCategory2Temp =
+                                        _categoryRepository.GetBy(t => t.InternalId == subCategory2.InternalId);
+                                    var updateCategoryCommand = new UpdateCategoryCommand
+                                    {
+                                        Id = subCategory2Temp.Id,
+                                        ParentId = category.Id
+                                    };
+                                    await _mediator.Send(updateCategoryCommand);
+                                    
                                 }
-                                 
-                                
- 
-                                GetSubCategoryList(subCategory.Id, subCategory2);
+
+                                await GetSubCategoryList(subCategory.Id, subCategory2);
                             }
                         }
                         catch (Exception e)
                         {
-                            
                             Console.WriteLine(e.Message);
                         }
                     }
                     else
                     {
-                        subCategory2.IsDeepest = true;
-                        subCategory2.HasError = false;
-                        _categoryRepository.Update(subCategory2);
+                        var updateCategoryCommand = new UpdateCategoryCommand
+                        {
+                            Id = subCategory2.Id,
+                            IsDeepest =true,
+                            HasError = true
+                        };
+                        await _mediator.Send(updateCategoryCommand);
                         Console.WriteLine("Alt kategori yok");
                     }
                 }
@@ -140,9 +161,14 @@ public class UpdateSubCategoryJob : IJob, IDisposable
                 var categoryError = _categoryRepository.GetBy(p => p.InternalId == parentCategoryId);
                 if (categoryError != null)
                 {
-                    categoryError.HasError = true;
-                    _categoryRepository.Update(categoryError);
+                    var updateCategoryCommand = new UpdateCategoryCommand
+                    {
+                        Id = categoryError.Id,
+                        HasError = true
+                    };
+                    await _mediator.Send(updateCategoryCommand);
                 }
+
                 Console.WriteLine(subCategories.Result.ErrorMessage);
                 Console.WriteLine("siktiğim servisi");
             }
@@ -159,11 +185,13 @@ public class UpdateSubCategoryJob : IJob, IDisposable
     protected virtual void Dispose(bool disposing)
     {
         // check if already disposed
-        if (!disposedValue) {
-            if (disposing) {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
                 // free managed objects here
-                
             }
+
             // free unmanaged objects here
             Console.WriteLine("The {0} has been disposed", this.GetType().Name);
 
@@ -171,15 +199,17 @@ public class UpdateSubCategoryJob : IJob, IDisposable
             disposedValue = true;
         }
     }
+
     public void Dispose()
     {
         // Invoke the above virtual
         // dispose(bool disposing) method
-        Dispose(disposing : true);
-  
+        Dispose(disposing: true);
+
         // Notify the garbage collector
         // about the cleaning event
         GC.SuppressFinalize(this);
     }
-    ~UpdateSubCategoryJob() { Dispose(disposing : false); }
+
+    ~UpdateSubCategoryJob() { Dispose(disposing: false); }
 }
