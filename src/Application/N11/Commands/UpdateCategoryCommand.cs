@@ -2,6 +2,7 @@
 using Application.Common.Interfaces;
 using Domain.Entities.NOnbir;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Application.N11.Commands;
 
@@ -16,10 +17,14 @@ public record UpdateCategoryCommand : IRequest
 public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand>
 {
     private readonly IApplicationDbContext _context;
+    ILogger<UpdateCategoryCommandHandler> _logger;
 
-    public UpdateCategoryCommandHandler(IApplicationDbContext context)
+    public UpdateCategoryCommandHandler(
+        IApplicationDbContext context, 
+        ILogger<UpdateCategoryCommandHandler> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
@@ -35,5 +40,6 @@ public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComman
         entity.IsDeepest = request.IsDeepest;
 
         await _context.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation($"{entity.Name} Category Updated. - {entity.Id}");
     }
 }

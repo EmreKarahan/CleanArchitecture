@@ -58,21 +58,6 @@ public class UpdateCategoryAttributeJob : IJob, IDisposable
 
         foreach (CategoryAttributeData data in categoryAttributesResponse.Category.AttributeList)
         {
-            // var attributeCheck = _attributeRepository.GetBy(b => b.InternalId == data.Id);
-            // if (attributeCheck != null)
-            // {
-            //     continue;
-            // }
-
-            // var attribute = new Attribute
-            // {
-            //     InternalId = data.Id,
-            //     Name = data.Name,
-            //     Mandatory = data.Mandatory,
-            //     MultipleSelect = data.MultipleSelect,
-            //     Priority = data.Priority,
-            //     CategoryId = category.Id
-            // };
             var createAttributeCommand = new CreateAttributeCommand
             {
                 InternalId = data.Id,

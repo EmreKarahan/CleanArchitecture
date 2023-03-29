@@ -3,6 +3,7 @@ using Domain.Entities.NOnbir;
 using Domain.Events.NOnbir;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Application.N11.Commands;
 
@@ -16,10 +17,14 @@ public class CreateAttributeValueCommand : IRequest<int>
 public class CreateAttributeValueCommandHandler : IRequestHandler<CreateAttributeValueCommand, int>
 {
     private readonly IApplicationDbContext _context;
+    readonly ILogger<CreateAttributeValueCommandHandler> _logger;
 
-    public CreateAttributeValueCommandHandler(IApplicationDbContext context)
+    public CreateAttributeValueCommandHandler(
+        IApplicationDbContext context, 
+        ILogger<CreateAttributeValueCommandHandler> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<int> Handle(CreateAttributeValueCommand request, CancellationToken cancellationToken)
@@ -42,7 +47,7 @@ public class CreateAttributeValueCommandHandler : IRequestHandler<CreateAttribut
         _context.N11AttributeValue.Add(entity);
 
         await _context.SaveChangesAsync(cancellationToken);
-
+        _logger.LogInformation($"{entity.Name} AttributeValue created. - {entity.Id}");
         return entity.Id;
     }
 }
