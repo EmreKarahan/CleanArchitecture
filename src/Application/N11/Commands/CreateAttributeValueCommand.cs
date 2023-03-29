@@ -2,6 +2,7 @@ using Application.Common.Interfaces;
 using Domain.Entities.NOnbir;
 using Domain.Events.NOnbir;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.N11.Commands;
 
@@ -23,8 +24,17 @@ public class CreateAttributeValueCommandHandler : IRequestHandler<CreateAttribut
 
     public async Task<int> Handle(CreateAttributeValueCommand request, CancellationToken cancellationToken)
     {
-        var entity = new AttributeValue()
+        var attributeValueCheck = await _context.N11AttributeValue.AsQueryable().FirstOrDefaultAsync(f =>
+            f.AttributeId == request.AttributeId && f.Name == request.Name, cancellationToken: cancellationToken);
+
+        if (attributeValueCheck is not null)
+            return attributeValueCheck.Id;
+        
+        var entity = new AttributeValue
         {
+            DependedName = request.DependedName,
+            AttributeId = request.AttributeId,
+            Name = request.Name
         };
 
         entity.AddDomainEvent(new AttributeValueCreatedEvent(entity));

@@ -1,4 +1,5 @@
-﻿using Domain.Entities.NOnbir;
+﻿using System.Data;
+using Domain.Entities.NOnbir;
 using Attribute = Domain.Entities.NOnbir.Attribute;
 
 namespace Infrastructure.Persistence;
@@ -17,7 +18,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         _mediator = mediator;
         _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
     }
-
+    public IDbConnection Connection => Database.GetDbConnection();
+    
     public DbSet<TodoList> TodoLists => Set<TodoList>();
 
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();

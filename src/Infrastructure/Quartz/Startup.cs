@@ -48,38 +48,13 @@ public static class Startup
             if (jobType == typeof(UpdateSubCategoryJob))
             {
 
-                var minuteAdd = 0;
-                foreach (var categoryItem in n11TopCategories)
-                {
-                    
-                    var job = JobBuilder.Create(jobType)
-                        .WithIdentity($"{jobAttribute.IdentityName}_{categoryItem.InternalId}_{jobAttribute.IdentityGroup}", jobAttribute.IdentityGroup)
-                        .UsingJobData("parentCategoryId", categoryItem.InternalId)
-                        .Build();
-            
-        
-        
-                    var trigger = TriggerBuilder.Create()
-                        .WithIdentity($"{jobAttribute.TriggerName}_{categoryItem.InternalId}_{jobAttribute.TriggerGroup}_Trigger", jobAttribute.TriggerGroup)
-                        .ForJob(job)
-                        //.StartNow()
-                        .StartAt(DateTime.Now.AddSeconds(minuteAdd))
-                        .WithSchedule(SimpleScheduleBuilder.RepeatMinutelyForever(20))
-                        //.WithCronSchedule(jobAttribute.CronSchedule)
-                        .Build();
-                    scheduler.ScheduleJob(job, trigger);
-                    minuteAdd +=10;
-                }
-            }
-            
-            else if (jobType  == typeof(UpdateCategoryAttributeJob))
-            {
                 // var minuteAdd = 0;
-                // foreach (var categoryItem in n11DeepestCategories)
+                // foreach (var categoryItem in n11TopCategories)
                 // {
+                //     
                 //     var job = JobBuilder.Create(jobType)
                 //         .WithIdentity($"{jobAttribute.IdentityName}_{categoryItem.InternalId}_{jobAttribute.IdentityGroup}", jobAttribute.IdentityGroup)
-                //         .UsingJobData("categoryId", categoryItem.InternalId)
+                //         .UsingJobData("parentCategoryId", categoryItem.InternalId)
                 //         .Build();
                 //
                 //
@@ -88,14 +63,39 @@ public static class Startup
                 //         .WithIdentity($"{jobAttribute.TriggerName}_{categoryItem.InternalId}_{jobAttribute.TriggerGroup}_Trigger", jobAttribute.TriggerGroup)
                 //         .ForJob(job)
                 //         //.StartNow()
-                //         //.WithCronSchedule(jobAttribute.CronSchedule)
-                //         .StartAt(DateTime.Now.AddMinutes(minuteAdd))
+                //         .StartAt(DateTime.Now.AddSeconds(minuteAdd))
                 //         .WithSchedule(SimpleScheduleBuilder.RepeatMinutelyForever(20))
                 //         //.WithCronSchedule(jobAttribute.CronSchedule)
                 //         .Build();
                 //     scheduler.ScheduleJob(job, trigger);
-                //     minuteAdd +=2;
+                //     minuteAdd +=10;
                 // }
+            }
+            
+            else if (jobType  == typeof(UpdateCategoryAttributeJob))
+            {
+                var minuteAdd = 0;
+                foreach (var categoryItem in n11DeepestCategories)
+                {
+                    var job = JobBuilder.Create(jobType)
+                        .WithIdentity($"{jobAttribute.IdentityName}_{categoryItem.InternalId}_{jobAttribute.IdentityGroup}", jobAttribute.IdentityGroup)
+                        .UsingJobData("categoryId", categoryItem.InternalId)
+                        .Build();
+                
+                
+                
+                    var trigger = TriggerBuilder.Create()
+                        .WithIdentity($"{jobAttribute.TriggerName}_{categoryItem.InternalId}_{jobAttribute.TriggerGroup}_Trigger", jobAttribute.TriggerGroup)
+                        .ForJob(job)
+                        //.StartNow()
+                        //.WithCronSchedule(jobAttribute.CronSchedule)
+                        .StartAt(DateTime.Now.AddSeconds(minuteAdd))
+                        .WithSchedule(SimpleScheduleBuilder.RepeatMinutelyForever(20))
+                        //.WithCronSchedule(jobAttribute.CronSchedule)
+                        .Build();
+                    scheduler.ScheduleJob(job, trigger);
+                    minuteAdd +=10;
+                }
             }
             else
             {

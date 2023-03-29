@@ -1,6 +1,7 @@
 using Application.Common.Interfaces;
 using Domain.Events.NOnbir;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Attribute = Domain.Entities.NOnbir.Attribute;
 
 namespace Application.N11.Commands;
@@ -26,6 +27,13 @@ public class CreateAttributeCommandHandler : IRequestHandler<CreateAttributeComm
 
     public async Task<int> Handle(CreateAttributeCommand request, CancellationToken cancellationToken)
     {
+
+        var attributeCheck = await _context.N11Attribute.AsQueryable().FirstOrDefaultAsync(f =>
+            f.InternalId == request.InternalId && f.CategoryId == request.CategoryId, cancellationToken: cancellationToken);
+
+        if (attributeCheck is not null)
+            return attributeCheck.Id;
+        
         var entity = new Attribute
         {
             InternalId = request.InternalId,

@@ -27,6 +27,7 @@ public static class Startup
         services.AddScoped<ApplicationDbContextInitialiser>();
 
 
+        services.AddTransient<IDapperRepository, DapperRepository>();
         
         services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<ICsvFileBuilder, CsvFileBuilder>();
