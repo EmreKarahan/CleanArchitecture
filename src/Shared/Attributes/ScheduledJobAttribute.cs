@@ -8,13 +8,15 @@ public class ScheduledJobAttribute : Attribute
     public string TriggerName { get; set; }
     public string TriggerGroup { get; set; }
     public string CronSchedule { get; set; }
+    public bool StartNow { get; set; }
     
-    public ScheduledJobAttribute(string identityName, string identityGroup, string triggerName, string triggerGroup, string cronSchedule)
+    public ScheduledJobAttribute(string identityName, string identityGroup, string triggerName, string triggerGroup, string cronSchedule, bool startNow = false)
     {
         IdentityName = identityName;
         IdentityGroup = identityGroup;
         TriggerName = triggerName;
         TriggerGroup = triggerGroup;
         CronSchedule = cronSchedule;
+        StartNow = startNow;
     }
 }

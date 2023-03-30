@@ -8,7 +8,7 @@ public class Category : BaseEntity
     public int? InternalParentId { get; set; }
     public int? ParentId { get; set; }
     public string? Name { get; set; }
-    
+    public bool IsDeepest { get; set; }
     public bool HasAttribute { get; set; }
     
     

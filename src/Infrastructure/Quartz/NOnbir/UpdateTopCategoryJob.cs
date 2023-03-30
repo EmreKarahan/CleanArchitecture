@@ -5,7 +5,7 @@ using ICategoryApiService = Minima.MarketPlace.NOnbir.Services.ICategoryApiServi
 namespace Infrastructure.Quartz.NOnbir;
 
 [ScheduledJob("UpdateTopCategoryJob", "N11", "UpdateTopCategoryJobTrigger", "N11", "0 /1 * ? * *")]
-public class UpdateTopCategoryJob : IJob, IDisposable
+public class UpdateTopCategoryJob //: IJob, IDisposable
 {
     readonly ICategoryApiService _categoryApiService;
 

@@ -1,7 +1,5 @@
 using Application;
 using Application.Common.Interfaces;
-using CleanArchitecture.Infrastructure;
-using CleanArchitecture.Infrastructure.Persistence;
 using Domain.Entities.NOnbir;
 using Host;
 using Infrastructure;
@@ -68,7 +66,7 @@ app.UseSwaggerUi3(settings =>
 });
 
 app.UseRouting();
-
+TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
 app.UseScheduledJob();
 //app.UseHangfireDashboard();
 

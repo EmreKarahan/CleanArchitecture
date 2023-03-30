@@ -20,7 +20,6 @@
 
     <ItemGroup>
       <Folder Include="N11\Queries" />
-      <Folder Include="Trendyol" />
     </ItemGroup>
 
 </Project>

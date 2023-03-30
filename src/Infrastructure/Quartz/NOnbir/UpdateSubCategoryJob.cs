@@ -1,5 +1,6 @@
 using Application.N11.Commands;
 using Domain.Entities.NOnbir;
+using Microsoft.Extensions.Logging;
 using Minima.MarketPlace.NOnbir.Models.ReturnType.Category.Requests;
 using Minima.MarketPlace.NOnbir.Models.Service.Category.Types;
 using Shared.Attributes;
@@ -9,11 +10,12 @@ using ICategoryApiService = Minima.MarketPlace.NOnbir.Services.ICategoryApiServi
 namespace Infrastructure.Quartz.NOnbir;
 
 [ScheduledJob("UpdateSubCategoryJob", "N11", "UpdateSubCategoryJobTigger", "N11", "0 0/10 * 1/1 * ? *")]
-public class UpdateSubCategoryJob : IJob, IDisposable
+public class UpdateSubCategoryJob //: IJob, IDisposable
 {
     readonly ICategoryApiService _categoryApiService;
     readonly IRepository<Category> _categoryRepository;
     readonly IMediator _mediator;
+    ILogger<UpdateSubCategoryJob> _logger;
 
     // boolean variable to ensure dispose
     // method executes only once
@@ -22,11 +24,13 @@ public class UpdateSubCategoryJob : IJob, IDisposable
     public UpdateSubCategoryJob(
         ICategoryApiService categoryApiService,
         IRepository<Category> categoryRepository, 
-        IMediator mediator)
+        IMediator mediator, 
+        ILogger<UpdateSubCategoryJob> logger)
     {
         _categoryApiService = categoryApiService;
         _categoryRepository = categoryRepository;
         _mediator = mediator;
+        _logger = logger;
     }
 
     public async Task Execute(IJobExecutionContext context)
@@ -35,16 +39,13 @@ public class UpdateSubCategoryJob : IJob, IDisposable
         JobDataMap dataMap = context.JobDetail.JobDataMap;
 
         long parentCategoryId = dataMap.GetLongValue("parentCategoryId");
-        Console.WriteLine("Instance {0} of DumbJob says: {1}", instName, parentCategoryId);
+        _logger.LogInformation("Instance {0} of DumbJob says: {1}", instName, parentCategoryId);
         await GetSubCategories(parentCategoryId);
     }
 
     private async Task GetSubCategories(long parentCategoryId)
     {
         var topLevelCategory = _categoryRepository.GetBy(p => p.InternalId == parentCategoryId);
-        if (topLevelCategory == null)
-            return;
-
         await GetSubCategoryList(topLevelCategory.InternalId, topLevelCategory);
     }
 
@@ -54,18 +55,12 @@ public class UpdateSubCategoryJob : IJob, IDisposable
         try
         {
             Category subCategory2 = null;
-            Console.WriteLine(category.Name);
-            category.SubCategories = new List<Category>();
-            // if (!category.HasError)
-            // {
-            //     Console.WriteLine($"{category.Name} es geçildi.");
-            // }
-
+            _logger.LogInformation(category.Name);
             var subCategories = _categoryApiService.GetSubCategories(new GetSubCategoriesRequestReturn
             {
                 CategoryId = parentCategoryId
             });
-            Thread.Sleep(1000);
+            Thread.Sleep(500);
 
             if (subCategories != null && subCategories.Result.Status == "success")
             {
@@ -75,7 +70,9 @@ public class UpdateSubCategoryJob : IJob, IDisposable
 
                     var updateCategoryCommand = new UpdateCategoryCommand
                     {
-                        Id = categoryTemp.Id, IsDeepest = true, HasError = false,
+                        Id = categoryTemp.Id, 
+                        IsDeepest = true, 
+                        HasError = false,
                     };
                     await _mediator.Send(updateCategoryCommand);
                 }
@@ -83,7 +80,7 @@ public class UpdateSubCategoryJob : IJob, IDisposable
                 {
                     var subCategoryList = subCategories?.Category?.FirstOrDefault()?.SubCategoryList.ToList();
 
-                    if (subCategoryList != null && subCategoryList.Count > 0)
+                    if (subCategoryList is {Count: > 0})
                     {
                         try
                         {
@@ -169,13 +166,13 @@ public class UpdateSubCategoryJob : IJob, IDisposable
                     await _mediator.Send(updateCategoryCommand);
                 }
 
-                Console.WriteLine(subCategories.Result.ErrorMessage);
-                Console.WriteLine("siktiğim servisi");
+                _logger.LogError(subCategories.Result.ErrorMessage);
+                _logger.LogError("siktiğim servisi");
             }
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            _logger.LogError(e, e.Message);
         }
     }
 

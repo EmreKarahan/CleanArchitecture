@@ -13,15 +13,13 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(t => t.Name)
             .HasMaxLength(400)
             .IsRequired();
-        
-        builder.HasOne(x=> x.Parent)
-            .WithMany(x=> x.SubCategories)
-            .HasForeignKey(x=> x.ParentId)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.Restrict);
-        
+
+        builder.HasOne(x => x.Parent)
+            .WithMany(x => x.SubCategories)
+            .HasForeignKey(x => x.ParentId)
+            .IsRequired(false);
+        //.OnDelete(DeleteBehavior.Restrict);
     }
-    
 }
 
 public class AttributeConfiguration : IEntityTypeConfiguration<Attribute>
@@ -33,20 +31,16 @@ public class AttributeConfiguration : IEntityTypeConfiguration<Attribute>
         builder.Property(t => t.Name)
             .HasMaxLength(400)
             .IsRequired();
-        
+
         builder.Property(t => t.Name)
             .HasMaxLength(400)
             .IsRequired(false);
-        
 
-        
-        
-        builder.HasOne(x=> x.Category)
-            .WithMany(x=> x.Attributes)
-            .HasForeignKey(x=> x.CategoryId)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.Restrict);
-        
+        builder.HasOne(x => x.Category)
+            .WithMany(x => x.Attributes)
+            .HasForeignKey(x => x.CategoryId)
+            .IsRequired(false);
+        //.OnDelete(DeleteBehavior.Restrict);
     }
 }
 
@@ -59,19 +53,18 @@ public class AttributeValueConfiguration : IEntityTypeConfiguration<AttributeVal
         builder.Property(t => t.Name)
             .HasMaxLength(400)
             .IsRequired();
-        
+
         builder.Property(t => t.DependedName)
             .HasMaxLength(400)
             .IsRequired(false);
-        
+
         // builder.Property(t => t.InternalId)
         //     .IsRequired(false);
-        
-        builder.HasOne(x=> x.Attribute)
-            .WithMany(x=> x.AttributeValues)
-            .HasForeignKey(x=> x.AttributeId)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.Restrict);
-        
+
+        builder.HasOne(x => x.Attribute)
+            .WithMany(x => x.AttributeValues)
+            .HasForeignKey(x => x.AttributeId)
+            .IsRequired(false);
+        //.OnDelete(DeleteBehavior.Restrict);
     }
 }

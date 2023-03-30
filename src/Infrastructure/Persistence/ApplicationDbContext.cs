@@ -1,6 +1,4 @@
 ﻿using System.Data;
-using Domain.Entities.NOnbir;
-using Attribute = Domain.Entities.NOnbir.Attribute;
 
 namespace Infrastructure.Persistence;
 
@@ -12,20 +10,30 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public ApplicationDbContext(
         DbContextOptions<ApplicationDbContext> options,
         IMediator mediator,
-        AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor) 
+        AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor)
         : base(options)
     {
         _mediator = mediator;
         _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
     }
+
+
     public IDbConnection Connection => Database.GetDbConnection();
-    
+
     public DbSet<TodoList> TodoLists => Set<TodoList>();
 
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
-    public DbSet<Category> N11Category => Set<Category>();
-    public DbSet<Attribute> N11Attribute => Set<Attribute>();
-    public DbSet<AttributeValue> N11AttributeValue => Set<AttributeValue>();
+    public DbSet<Domain.Entities.NOnbir.Category> N11Category => Set<Domain.Entities.NOnbir.Category>();
+    public DbSet<Domain.Entities.NOnbir.Attribute> N11Attribute => Set<Domain.Entities.NOnbir.Attribute>();
+
+    public DbSet<Domain.Entities.NOnbir.AttributeValue> N11AttributeValue =>
+        Set<Domain.Entities.NOnbir.AttributeValue>();
+
+    public DbSet<Domain.Entities.Trendyol.Category> TrendyolCategory => Set<Domain.Entities.Trendyol.Category>();
+    public DbSet<Domain.Entities.Trendyol.Attribute> TrendyolAttribute => Set<Domain.Entities.Trendyol.Attribute>();
+
+    public DbSet<Domain.Entities.Trendyol.AttributeValue> TrendyolAttributeValue =>
+        Set<Domain.Entities.Trendyol.AttributeValue>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

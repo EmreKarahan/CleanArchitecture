@@ -15,6 +15,7 @@ public class QuartzHostedService : IHostedService
     {
         return _scheduler.Start(ct);
     }
+    
 
     public Task StopAsync(CancellationToken ct)
     {
