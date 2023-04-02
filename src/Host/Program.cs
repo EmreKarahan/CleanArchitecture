@@ -1,11 +1,7 @@
 using Application;
 using Host;
 using Infrastructure;
-using Infrastructure.Persistence;
 using Infrastructure.Quartz;
-using Minima.MarketPlace.NOnbir;
-using Minima.Trendyol.Client;
-using Minima.Trendyol.Client.Constants;
 using Quartz.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,18 +15,12 @@ builder.Services.AddWebUIServices();
 
 var app = builder.Build();
 
-app.UseInfrastructureServices();
+app.UseInfrastructureServices(app.Environment);
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseMigrationsEndPoint();
-
-    // Initialise and seed database
-    using var scope = app.Services.CreateScope();
-    var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
-    await initializer.InitialiseAsync();
-    await initializer.SeedAsync();
 }
 else
 {
