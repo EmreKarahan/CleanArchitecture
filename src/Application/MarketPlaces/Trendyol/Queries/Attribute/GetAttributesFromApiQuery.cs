@@ -33,10 +33,9 @@ public class GetAttributesFromApiQueryHandler : IRequestHandler<GetAttributesFro
 
     public async Task<AttributeResponseDto?> Handle(GetAttributesFromApiQuery request, CancellationToken cancellationToken)
     {
-        var attributesResponse =
-            await _categoryApiService.GetCategoryAttributeByCategoryIdAsync(request.CategoryId);
+        string cacheKey = $"trendyol_attributes_{request.CategoryId}";
         
-        var data = await _cachingManager.GetValueOrCreateAsync("attributes", 10000,
+        var data = await _cachingManager.GetValueOrCreateAsync(cacheKey, 10000,
             async () =>
             {
                 var attributesResponse =

@@ -32,7 +32,8 @@ public class GetTodoItemsWithPaginationQueryHandler : IRequestHandler<GetCategor
 
     public async Task<List<CategoryDto>?> Handle(GetCategoriesFromApiQuery request, CancellationToken cancellationToken)
     {
-        var data = await _cachingManager.GetValueOrCreateAsync("categories", 10000,
+        string cacheKey = "trendyol_categories";
+        var data = await _cachingManager.GetValueOrCreateAsync(cacheKey, 10000,
             async () =>
             {
                 var categoriesBaseResponse = await _categoryApiService.GetCategoryList(new TrendyolBaseRequest());
