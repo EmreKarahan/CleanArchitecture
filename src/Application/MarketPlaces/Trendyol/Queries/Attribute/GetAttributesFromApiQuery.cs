@@ -8,7 +8,11 @@ namespace Application.MarketPlaces.Trendyol.Queries.Attribute;
 
 public class GetAttributesFromApiQuery : IRequest<AttributeDto?>
 {
-    public int CategoryId { get; set;}
+    public GetAttributesFromApiQuery(int categoryId)
+    {
+        CategoryId = categoryId;
+    }
+    public int CategoryId { get; }
 }
 
 public class GetAttributesFromApiQueryHandler : IRequestHandler<GetAttributesFromApiQuery, AttributeDto?>
@@ -29,7 +33,10 @@ public class GetAttributesFromApiQueryHandler : IRequestHandler<GetAttributesFro
 
     public async Task<AttributeDto?> Handle(GetAttributesFromApiQuery request, CancellationToken cancellationToken)
     {
-        var data = await _cachingManager.GetValueOrCreateAsync("categories", 10000,
+        var attributesResponse =
+            await _categoryApiService.GetCategoryAttributeByCategoryIdAsync(request.CategoryId);
+        
+        var data = await _cachingManager.GetValueOrCreateAsync("attributes", 10000,
             async () =>
             {
                 var attributesResponse =

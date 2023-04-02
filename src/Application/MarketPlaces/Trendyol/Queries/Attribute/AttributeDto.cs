@@ -1,6 +1,7 @@
 using Application.Common.Mappings;
 using Minima.Trendyol.Client.Models.Service.Category.Response;
 
+
 namespace Application.MarketPlaces.Trendyol.Queries.Attribute;
 
 public class AttributeDto: IMapFrom<TrendyolCategoryAttributeResponse>

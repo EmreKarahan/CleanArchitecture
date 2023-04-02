@@ -13,9 +13,9 @@ public class TrendyolController : ApiControllerBase
     }
     
     [HttpGet("attributes")]
-    public async Task<AttributeDto?> Get(GetAttributesFromApiQuery getAttributesFromApiQuery)
+    public async Task<AttributeDto?> Get(int categoryId)
     {
-        return await Mediator.Send(getAttributesFromApiQuery);
+        return await Mediator.Send(new GetAttributesFromApiQuery(categoryId));
     }
 
 }
