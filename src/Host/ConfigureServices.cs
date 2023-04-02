@@ -11,17 +11,15 @@ public static class ConfigureServices
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
         services.AddDatabaseDeveloperPageExceptionFilter();
-        
+
 
         services.AddHttpContextAccessor();
 
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>();
 
-        services.AddControllersWithViews();
-
-        services.AddRazorPages();
-
+        services.AddControllers();
+        ;
         services.AddScoped<FluentValidationSchemaProcessor>(provider =>
         {
             var validationRules = provider.GetService<IEnumerable<FluentValidationRule>>();
@@ -36,21 +34,11 @@ public static class ConfigureServices
 
         services.AddOpenApiDocument((configure, serviceProvider) =>
         {
-            var fluentValidationSchemaProcessor = serviceProvider.CreateScope().ServiceProvider.GetRequiredService<FluentValidationSchemaProcessor>();
-
+            var fluentValidationSchemaProcessor = serviceProvider.CreateScope().ServiceProvider
+                .GetRequiredService<FluentValidationSchemaProcessor>();
             // Add the fluent validations schema processor
             configure.SchemaProcessors.Add(fluentValidationSchemaProcessor);
-
             configure.Title = "CleanArchitecture API";
-            configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
-            {
-                Type = OpenApiSecuritySchemeType.ApiKey,
-                Name = "Authorization",
-                In = OpenApiSecurityApiKeyLocation.Header,
-                Description = "Type into the textbox: Bearer {your JWT token}."
-            });
-
-            configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
         });
 
         return services;

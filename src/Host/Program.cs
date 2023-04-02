@@ -1,5 +1,4 @@
 using Application;
-using Application.Common.Interfaces;
 using Host;
 using Infrastructure;
 using Infrastructure.Persistence;
@@ -18,7 +17,6 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebUIServices();
 
-builder.Services.AddScoped(typeof(IRepository<>), typeof(EntityRepository<>));
 
 var settings = builder.Configuration.GetSection("TrendyolSettings").Get<TrendyolSettings>();
 builder.Services.AddTrendyolClient(settings);
@@ -26,7 +24,6 @@ builder.Services.AddTrendyolClient(settings);
 NOnbirSettings? nOnbirSettings = builder.Configuration.GetSection("NOnbirSetting").Get<NOnbirSettings>();
 builder.Services.AddNOnbirClient(nOnbirSettings);
 
-builder.Services.AddScheduledJob(builder.Configuration);
 var app = builder.Build();
 
 app.UseInfrastructureServices();
@@ -51,10 +48,12 @@ else
 app.UseHealthChecks("/health");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-
 app.UseRouting();
 app.UseScheduledJob();
+
+app.UseSwaggerUi3(settings =>
+{
+});
 
 
 app.Run();
