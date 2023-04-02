@@ -1,6 +1,4 @@
 using NJsonSchema.Generation.TypeMappers;
-using NSwag;
-using NSwag.AspNetCore;
 using NSwag.Generation.Processors.Security;
 
 namespace Infrastructure.OpenApi;
