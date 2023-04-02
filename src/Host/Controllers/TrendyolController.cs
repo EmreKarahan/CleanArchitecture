@@ -13,7 +13,7 @@ public class TrendyolController : ApiControllerBase
     }
     
     [HttpGet("attributes")]
-    public async Task<AttributeDto?> Get(int categoryId)
+    public async Task<AttributeResponseDto?> Get(int categoryId)
     {
         return await Mediator.Send(new GetAttributesFromApiQuery(categoryId));
     }

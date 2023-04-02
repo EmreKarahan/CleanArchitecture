@@ -6,7 +6,7 @@ using Minima.Trendyol.Client.Services;
 
 namespace Application.MarketPlaces.Trendyol.Queries.Attribute;
 
-public class GetAttributesFromApiQuery : IRequest<AttributeDto?>
+public class GetAttributesFromApiQuery : IRequest<AttributeResponseDto?>
 {
     public GetAttributesFromApiQuery(int categoryId)
     {
@@ -15,7 +15,7 @@ public class GetAttributesFromApiQuery : IRequest<AttributeDto?>
     public int CategoryId { get; }
 }
 
-public class GetAttributesFromApiQueryHandler : IRequestHandler<GetAttributesFromApiQuery, AttributeDto?>
+public class GetAttributesFromApiQueryHandler : IRequestHandler<GetAttributesFromApiQuery, AttributeResponseDto?>
 {
     private readonly IMapper _mapper;
     readonly ICategoryApiService _categoryApiService;
@@ -31,7 +31,7 @@ public class GetAttributesFromApiQueryHandler : IRequestHandler<GetAttributesFro
         _cachingManager = cachingManager;
     }
 
-    public async Task<AttributeDto?> Handle(GetAttributesFromApiQuery request, CancellationToken cancellationToken)
+    public async Task<AttributeResponseDto?> Handle(GetAttributesFromApiQuery request, CancellationToken cancellationToken)
     {
         var attributesResponse =
             await _categoryApiService.GetCategoryAttributeByCategoryIdAsync(request.CategoryId);
@@ -43,7 +43,7 @@ public class GetAttributesFromApiQueryHandler : IRequestHandler<GetAttributesFro
                     await _categoryApiService.GetCategoryAttributeByCategoryIdAsync(request.CategoryId);
                 if (!attributesResponse.IsSuccess)
                     return null;
-                return _mapper.Map<TrendyolCategoryAttributeResponse, AttributeDto>(attributesResponse.Data);
+                return _mapper.Map<TrendyolCategoryAttributeResponse, AttributeResponseDto>(attributesResponse.Data);
             });
         return data;
     }
