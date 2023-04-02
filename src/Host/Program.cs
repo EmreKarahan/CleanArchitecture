@@ -13,16 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 LogProvider.SetCurrentLogProvider(new ConsoleLogProvider());
 
 // Add services to the container.
-builder.Services.AddApplicationServices();
+builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebUIServices();
-
-
-var settings = builder.Configuration.GetSection("TrendyolSettings").Get<TrendyolSettings>();
-builder.Services.AddTrendyolClient(settings);
-
-NOnbirSettings? nOnbirSettings = builder.Configuration.GetSection("NOnbirSetting").Get<NOnbirSettings>();
-builder.Services.AddNOnbirClient(nOnbirSettings);
 
 var app = builder.Build();
 

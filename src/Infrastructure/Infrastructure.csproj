@@ -17,8 +17,6 @@
 <!--        <PackageReference Include="Hangfire.PostgreSql" Version="1.19.12" />-->
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.3" />
-        <PackageReference Include="Minima.N11.Client" Version="1.0.2" />
-        <PackageReference Include="Minima.Trendyol.Client" Version="1.0.2" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.3" />
         <PackageReference Include="Quartz" Version="3.6.2" />
         <PackageReference Include="Quartz.AspNetCore" Version="3.6.2" />
