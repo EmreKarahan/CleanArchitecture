@@ -34,4 +34,15 @@ services:
     container_name: gatewaymemcached
     restart: always
     volumes:
-      - ./memcached-data:/Users/emre/Projects/docker-mount/memcached_data         
+      - ./memcached-data:/Users/emre/Projects/docker-mount/memcached_data
+  memcachedadmin:
+    image: "hatamiarash7/memcached-admin"
+    container_name: memcachedadmin
+    restart: always
+    ports:
+      - "6080:80"
+    environment:
+      MEMCACHED_HOST: "gatewaymemcached"
+      MEMCACHED_PORT: "11211"
+    depends_on:
+      - gatewaymemcached
