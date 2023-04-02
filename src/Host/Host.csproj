@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
         <RootNamespace>Host</RootNamespace>
+        <AssemblyName>Minima.Gateway</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

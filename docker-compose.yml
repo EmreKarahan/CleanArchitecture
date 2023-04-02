@@ -1,0 +1,39 @@
+services:
+  gatewayapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gatewayapi
+    environment:
+      - "ConnectionStrings__DefaultConnection=Host=gatewaydb; Database=minima_source; Username=postgres;\ 
+      Password=be02062012@;Include Error Detail=True"
+      - "enyimMemcached__Servers=memcached:11212"
+      - "enyimMemcached__Transcoder=Binary"
+      - "ASPNETCORE_Kestrel__Certificates__Default__Password=SuperSecurePasswor\
+        d123!"
+      - "ASPNETCORE_Kestrel__Certificates__Default__Path=/https/DN.Host.pfx"
+    volumes:
+      - ~/.aspnet/https:/https:ro
+    ports:
+      - "6050:6050"
+      - "6060:6060"
+    depends_on:
+      - gatewaydb
+      - gatewaymemcached
+    restart: on-failure
+  gatewaydb:
+    image: "postgres:latest"
+    container_name: gatewaydb
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: "be02062012@"
+    volumes:
+      - ./postgres-data:/Users/emre/Projects/docker-mount/gateway_db
+  gatewaymemcached:
+    image: "memcached:latest"
+    container_name: gatewaymemcached
+    restart: always
+    ports:
+      - "11212:11211"
+    volumes:
+      - ./memcached-data:/Users/emre/Projects/docker-mount/memcached_data         
