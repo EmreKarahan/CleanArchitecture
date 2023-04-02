@@ -1,11 +1,10 @@
 ﻿using Application.Common.Exceptions;
 using Application.Common.Interfaces;
-using Domain.Entities.Trendyol;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Application.MarketPlaces.Trendyol.Commands;
+namespace Application.MarketPlaces.Trendyol.Commands.Category;
 
 public record UpdateCategoryCommand : IRequest
 {
@@ -35,7 +34,7 @@ public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComman
 
         if (entity == null)
         {
-            throw new NotFoundException(nameof(Category), request.Id);
+            throw new NotFoundException(nameof(Domain.Entities.Trendyol.Category), request.Id);
         }
 
         entity.IsDeepest = request.IsDeepest;

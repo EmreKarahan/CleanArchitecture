@@ -4,11 +4,10 @@ using Domain.Events.Trendyol;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Attribute = Domain.Entities.Trendyol.Attribute;
 
-namespace Application.MarketPlaces.Trendyol.Commands;
+namespace Application.MarketPlaces.Trendyol.Commands.Attribute;
 
-public class CreateAttributeCommand : IRequest<Attribute>
+public class CreateAttributeCommand : IRequest<Domain.Entities.Trendyol.Attribute>
 {
     public long InternalId { get; set; }
     public int CategoryId { get; set; }
@@ -19,7 +18,7 @@ public class CreateAttributeCommand : IRequest<Attribute>
     public bool Varianter { get; set; }
 }
 
-public class CreateAttributeCommandHandler : IRequestHandler<CreateAttributeCommand, Attribute>
+public class CreateAttributeCommandHandler : IRequestHandler<CreateAttributeCommand, Domain.Entities.Trendyol.Attribute>
 {
     private readonly IApplicationDbContext _context;
     readonly ILogger<CreateAttributeCommandHandler> _logger;
@@ -30,7 +29,7 @@ public class CreateAttributeCommandHandler : IRequestHandler<CreateAttributeComm
         _logger = logger;
     }
 
-    public async Task<Attribute> Handle(CreateAttributeCommand request, CancellationToken cancellationToken)
+    public async Task<Domain.Entities.Trendyol.Attribute> Handle(CreateAttributeCommand request, CancellationToken cancellationToken)
     {
         var attributeCheck = await _context.TrendyolAttribute.AsQueryable()
             .FirstOrDefaultAsync(f =>
@@ -38,7 +37,7 @@ public class CreateAttributeCommandHandler : IRequestHandler<CreateAttributeComm
 
         if (attributeCheck is null)
         {
-            var entity = new Attribute
+            var entity = new Domain.Entities.Trendyol.Attribute
             {
                 InternalId = request.InternalId,
                 //CategoryId = request.CategoryId,

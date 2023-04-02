@@ -1,11 +1,10 @@
 using Application.Common.Interfaces;
-using Domain.Entities.Trendyol;
 using Domain.Events.Trendyol;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Application.MarketPlaces.Trendyol.Commands;
+namespace Application.MarketPlaces.Trendyol.Commands.Category;
 
 public class CreateCategoryCommand : IRequest<int>
 {
@@ -41,7 +40,7 @@ public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComman
         if (categoryCheck is not null)
             return categoryCheck.Id;
         
-        var entity = new Category
+        var entity = new Domain.Entities.Trendyol.Category
         {
             InternalId = request.InternalId,
             Name = request.Name,

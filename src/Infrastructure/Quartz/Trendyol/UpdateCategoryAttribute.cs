@@ -1,4 +1,6 @@
 using Application.MarketPlaces.Trendyol.Commands;
+using Application.MarketPlaces.Trendyol.Commands.Attribute;
+using Application.MarketPlaces.Trendyol.Commands.Category;
 using Domain.Entities.Trendyol;
 using Microsoft.Extensions.Logging;
 using Shared.Attributes;
