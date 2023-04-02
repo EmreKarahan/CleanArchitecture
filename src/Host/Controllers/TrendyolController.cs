@@ -1,5 +1,5 @@
-using Application.Trendyol.Queries.Attribute;
-using Application.Trendyol.Queries.Category;
+using Application.MarketPlaces.Trendyol.Queries.Attribute;
+using Application.MarketPlaces.Trendyol.Queries.Category;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Host.Controllers;

@@ -4,7 +4,7 @@ using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.Trendyol.Queries.Attribute;
+namespace Application.MarketPlaces.Trendyol.Queries.Attribute;
 
 public record GetAttributeQuery() : IRequest<AttributeValueVm>
 {

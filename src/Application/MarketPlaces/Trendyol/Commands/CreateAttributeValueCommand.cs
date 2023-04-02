@@ -5,7 +5,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Trendyol.Commands;
+namespace Application.MarketPlaces.Trendyol.Commands;
 
 public class CreateAttributeValueCommand : IRequest<int>
 {

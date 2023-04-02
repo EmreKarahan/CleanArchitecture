@@ -1,4 +1,4 @@
-using Application.N11.Commands;
+using Application.MarketPlaces.N11.Commands;
 using Shared.Attributes;
 using ICategoryApiService = Minima.MarketPlace.NOnbir.Services.ICategoryApiService;
 

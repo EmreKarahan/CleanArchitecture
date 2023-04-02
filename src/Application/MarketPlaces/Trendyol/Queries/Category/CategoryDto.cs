@@ -1,7 +1,7 @@
 using Application.Common.Mappings;
 using Minima.Trendyol.Client.Models.Service.Category.Response;
 
-namespace Application.Trendyol.Queries.Category;
+namespace Application.MarketPlaces.Trendyol.Queries.Category;
 
 public record CategoryDto : IMapFrom<TrendyolCategoryResponse>
 {

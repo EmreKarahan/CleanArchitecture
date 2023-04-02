@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Attribute = Domain.Entities.NOnbir.Attribute;
 
-namespace Application.N11.Commands;
+namespace Application.MarketPlaces.N11.Commands;
 
 
 public class CreateAttributeCommand : IRequest<int>

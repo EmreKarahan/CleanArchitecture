@@ -1,4 +1,4 @@
-namespace Application.Trendyol.Queries.Attribute;
+namespace Application.MarketPlaces.Trendyol.Queries.Attribute;
 
 public class AttributeValueVm
 {

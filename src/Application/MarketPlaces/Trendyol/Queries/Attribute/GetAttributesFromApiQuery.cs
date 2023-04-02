@@ -4,7 +4,7 @@ using MediatR;
 using Minima.Trendyol.Client.Models.Service.Category.Response;
 using Minima.Trendyol.Client.Services;
 
-namespace Application.Trendyol.Queries.Attribute;
+namespace Application.MarketPlaces.Trendyol.Queries.Attribute;
 
 public class GetAttributesFromApiQuery : IRequest<AttributeDto?>
 {

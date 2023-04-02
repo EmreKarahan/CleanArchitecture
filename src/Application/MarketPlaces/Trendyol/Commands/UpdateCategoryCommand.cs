@@ -1,23 +1,24 @@
 ﻿using Application.Common.Exceptions;
 using Application.Common.Interfaces;
-using Domain.Entities.NOnbir;
+using Domain.Entities.Trendyol;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Application.N11.Commands;
+namespace Application.MarketPlaces.Trendyol.Commands;
 
 public record UpdateCategoryCommand : IRequest
 {
     public int Id { get; init; }
     public bool IsDeepest { get; set; }
-    public bool HasError { get; set; }
-    public int? ParentId { get; set; }
+    public int InternalId { get; set; }
+    public bool HasAttribute { get; set; }
 }
 
 public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand>
 {
     private readonly IApplicationDbContext _context;
-    ILogger<UpdateCategoryCommandHandler> _logger;
+    readonly ILogger<UpdateCategoryCommandHandler> _logger;
 
     public UpdateCategoryCommandHandler(
         IApplicationDbContext context, 
@@ -29,8 +30,8 @@ public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComman
 
     public async Task Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.N11Category
-            .FindAsync(new object[] { request.Id }, cancellationToken);
+        var entity =
+            await _context.TrendyolCategory.FirstOrDefaultAsync(f => f.InternalId == request.InternalId, cancellationToken);
 
         if (entity == null)
         {
@@ -38,6 +39,7 @@ public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComman
         }
 
         entity.IsDeepest = request.IsDeepest;
+        entity.HasAttribute = request.HasAttribute;
 
         try
         {

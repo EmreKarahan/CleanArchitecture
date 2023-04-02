@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Attribute = Domain.Entities.Trendyol.Attribute;
 
-namespace Application.Trendyol.Commands;
+namespace Application.MarketPlaces.Trendyol.Commands;
 
 public class CreateAttributeCommand : IRequest<Attribute>
 {

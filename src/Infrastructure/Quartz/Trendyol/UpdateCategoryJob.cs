@@ -1,4 +1,4 @@
-using Application.Trendyol.Commands;
+using Application.MarketPlaces.Trendyol.Commands;
 using Domain.Entities.Trendyol;
 using Microsoft.Extensions.Logging;
 using Shared.Attributes;

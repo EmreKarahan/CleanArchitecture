@@ -5,7 +5,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Application.N11.Commands;
+namespace Application.MarketPlaces.N11.Commands;
 
 public class CreateCategoryCommand : IRequest<int>
 {

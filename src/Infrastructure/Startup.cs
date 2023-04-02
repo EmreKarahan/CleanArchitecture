@@ -16,8 +16,7 @@ public static class Startup
         services.AddPersistence(configuration);
         services.AddCaching(configuration);
         services.AddScheduledJob(configuration);
-
-
+        
         return services;
     }
 

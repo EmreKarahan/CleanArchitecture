@@ -5,7 +5,7 @@ using Minima.Trendyol.Client.Models;
 using Minima.Trendyol.Client.Models.Service.Category.Response;
 using Minima.Trendyol.Client.Services;
 
-namespace Application.Trendyol.Queries.Category;
+namespace Application.MarketPlaces.Trendyol.Queries.Category;
 
 public record GetCategoriesFromApiQuery : IRequest<List<CategoryDto>?>
 {
