@@ -12,6 +12,7 @@ public class CreateAttributeValueCommand : IRequest<int>
     public int AttributeId { get; set; }
     public string Name { get; set; }
     public int InternalId { get; set; }
+    public int CategoryId { get; set; }
 }
 
 public class CreateAttributeValueCommandHandler : IRequestHandler<CreateAttributeValueCommand, int>
@@ -29,17 +30,31 @@ public class CreateAttributeValueCommandHandler : IRequestHandler<CreateAttribut
 
     public async Task<int> Handle(CreateAttributeValueCommand request, CancellationToken cancellationToken)
     {
-        var attributeValueCheck = await _context.TrendyolAttributeValue.AsQueryable().FirstOrDefaultAsync(f =>
-            f.AttributeId == request.AttributeId && f.Name == request.Name, cancellationToken: cancellationToken);
+        var attributeValueCheck = await _context.TrendyolAttributeValue
+            .AsQueryable()
+            .FirstOrDefaultAsync(f =>
+                f.CategoryToAttribute.AttributeId == request.AttributeId &&
+                f.CategoryToAttribute.CategoryId == request.CategoryId &&
+                f.Name == request.Name, cancellationToken: cancellationToken);
 
         if (attributeValueCheck is not null)
+        {
+            _logger.LogInformation($"{attributeValueCheck.Name} AttributeValue already exists. - {attributeValueCheck.Id}");
             return attributeValueCheck.Id;
+        }
+         
+        var categoryToAttributeCheck = await _context.TrendyolCategoryToAttribute
+            .AsQueryable()
+            .FirstOrDefaultAsync(f =>
+                f.AttributeId == request.AttributeId &&
+                f.CategoryId == request.CategoryId, cancellationToken: cancellationToken);
         
         var entity = new AttributeValue
         {
-            AttributeId = request.AttributeId,
+            //AttributeId = request.AttributeId,
             Name = request.Name,
             InternalId = request.InternalId,
+            CategoryAttributeId = categoryToAttributeCheck.Id
         };
 
         entity.AddDomainEvent(new AttributeValueCreatedEvent(entity));

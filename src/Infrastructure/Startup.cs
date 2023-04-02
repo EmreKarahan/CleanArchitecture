@@ -1,4 +1,5 @@
-﻿using Infrastructure.Files;
+﻿using Infrastructure.Caching;
+using Infrastructure.Files;
 using Infrastructure.Services;
 
 namespace Infrastructure;
@@ -8,6 +9,7 @@ public static class Startup
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<AuditableEntitySaveChangesInterceptor>();
+        services.AddCaching(configuration);
 
         if (configuration.GetValue<bool>("UseInMemoryDatabase"))
         {
@@ -40,4 +42,13 @@ public static class Startup
 
         return services;
     }
+    
+    
+    public static IApplicationBuilder UseInfrastructureServices(this IApplicationBuilder app)
+    { 
+        app.UseCaching();
+        return app;
+    }
 }
+
+

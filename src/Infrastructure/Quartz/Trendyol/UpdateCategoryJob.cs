@@ -5,7 +5,7 @@ using Shared.Attributes;
 
 namespace Infrastructure.Quartz.Trendyol;
 
-[ScheduledJob("UpdateCategoryJob", "Trendyol", "UpdateCategoryJobTrigger", "Trendyol", "0 0 0/6 1/1 * ? *")]
+[ScheduledJob("UpdateCategoryJob", "Trendyol", "UpdateCategoryJobTrigger", "Trendyol", "0 15 4 1/1 * ? *", true)]
 public class UpdateCategoryJob //: IJob
 {
     readonly ICategoryApiService _categoryApiService;

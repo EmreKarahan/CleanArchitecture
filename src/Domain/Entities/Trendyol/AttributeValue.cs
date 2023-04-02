@@ -6,7 +6,9 @@ public class AttributeValue : BaseEntity
 {
     public int InternalId { get; set; }
     public string Name { get; set; }
-    public int AttributeId { get; set; }
+    //public int AttributeId { get; set; }
+    public int CategoryAttributeId { get; set; }
+    
 
-    public virtual Attribute Attribute { get; set; }
+    public virtual CategoryToAttribute CategoryToAttribute { get; set; }
 }

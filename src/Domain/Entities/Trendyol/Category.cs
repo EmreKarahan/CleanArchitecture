@@ -17,4 +17,5 @@ public class Category : BaseEntity
     public virtual Category? Parent { get; set; }
     public virtual ICollection<Category>? SubCategories { get; set; }
     public virtual ICollection<Attribute>? Attributes { get; set; }
+    public virtual ICollection<CategoryToAttribute> CategoryToAttributes { get; set; }
 }

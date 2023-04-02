@@ -1,26 +1,32 @@
 using Application.Trendyol.Commands;
 using Domain.Entities.Trendyol;
+using Microsoft.Extensions.Logging;
 using Shared.Attributes;
 using CategoryAttribute = Minima.Trendyol.Client.Models.Service.Category.Response.CategoryAttribute;
 
 namespace Infrastructure.Quartz.Trendyol;
 
-[ScheduledJob("UpdateCategoryAttribute", "Trendyol", "UpdateCategoryAttributeTrigger", "Trendyol", "0 59 0 1/1 * ? *", true)]
-public class UpdateCategoryAttribute : IJob
+[ScheduledJob("UpdateCategoryAttribute", "Trendyol", "UpdateCategoryAttributeTrigger", "Trendyol", "0 9 4 1/1 * ? *",
+    true)]
+public class UpdateCategoryAttribute //: IJob
 {
     readonly ICategoryApiService _categoryApiService;
     readonly IRepository<Category> _categporyRepository;
     readonly IMediator _mediator;
+    ILogger<UpdateCategoryAttribute> _logger;
 
     public UpdateCategoryAttribute(
-        ICategoryApiService categoryApiService, 
-        IRepository<Category> categporyRepository, 
-        IMediator mediator)
+        ICategoryApiService categoryApiService,
+        IRepository<Category> categporyRepository,
+        IMediator mediator,
+        ILogger<UpdateCategoryAttribute> logger)
     {
         _categoryApiService = categoryApiService;
         _categporyRepository = categporyRepository;
         _mediator = mediator;
+        _logger = logger;
     }
+
     public async Task Execute(IJobExecutionContext context)
     {
         await GetCategoryAttributes();
@@ -28,8 +34,9 @@ public class UpdateCategoryAttribute : IJob
 
     private async Task GetCategoryAttributes()
     {
-        var result = await _categporyRepository.GetAllAsync();
+        var result = await _categporyRepository.GetAllAsync(); //.GetAllByAsync(f=> f.IsDeepest);
 
+        var categoryCount = 0;
         foreach (var category in result)
         {
             var attributes = await _categoryApiService.GetCategoryAttributeByCategoryIdAsync(category.InternalId);
@@ -43,14 +50,20 @@ public class UpdateCategoryAttribute : IJob
                 var updateCategoryCommand = new UpdateCategoryCommand
                 {
                     Id = category.Id,
-                    InternalId = category.InternalId, 
+                    InternalId = category.InternalId,
                     HasAttribute = true,
                     IsDeepest = category.IsDeepest
                 };
                 await _mediator.Send(updateCategoryCommand);
             }
+            else
+            {
+                _logger.LogWarning("Category has not attribute");
+            }
 
             await InsertDatabase(attributes.Data, category);
+            categoryCount++;
+            _logger.LogWarning(categoryCount + " category attribute inserted");
         }
     }
 
@@ -70,28 +83,28 @@ public class UpdateCategoryAttribute : IJob
                 //AttributeValues = new List<AttributeValue>()
             };
             var attributeId = await _mediator.Send(createAttributeCommand);
-
+            
+            
             foreach (var attributeValue in categoryAttribute.AttributeValues)
             {
                 var createAttributeValueCommand = new CreateAttributeValueCommand
                 {
                     InternalId = attributeValue.Id, 
                     Name = attributeValue.Name, 
-                    AttributeId = attributeId
+                    AttributeId = attributeId.Id,
+                    CategoryId = category.Id
                 };
                 await _mediator.Send(createAttributeValueCommand);
                 //attribute.AttributeValues.Add(attributeValue1);
             }
-            
+
             // Attribute existAttribute = await _attributeRepository.GetByAsync(f =>
             //     f.InternalId == categoryAttribute.Attribute.Id && f.CategoryId == category.Id);
-            
+
             // if (existAttribute != null)
             // {
             //     await _attributeRepository.InsertAsync(attribute);
             // }
         }
     }
-
-
 }

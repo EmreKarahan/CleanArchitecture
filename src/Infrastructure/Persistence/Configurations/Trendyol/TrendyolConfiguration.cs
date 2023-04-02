@@ -19,7 +19,7 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
             .HasForeignKey(x => x.ParentId)
             .IsRequired(false);
         //.OnDelete(DeleteBehavior.Restrict);
-        
+
         builder.Navigation(x => x.Parent)
             .IsRequired(false);
     }
@@ -40,10 +40,11 @@ public class AttributeConfiguration : IEntityTypeConfiguration<Attribute>
             .IsRequired(false);
 
 
-        builder.HasOne(x => x.Category)
-            .WithMany(x => x.Attributes)
-            .HasForeignKey(x => x.CategoryId)
-            .IsRequired(false);
+        // builder.HasOne(x => x.Category)
+        //     .WsForeignKey(x => x.CategoryId)
+        //                   .IsRequired(false);ithMany(x => x.Attributes)
+        //     .HasForeignKey(x => x.CategoryId)
+        //     .IsRequired(false);
         //.OnDelete(DeleteBehavior.Restrict);
     }
 }
@@ -58,11 +59,35 @@ public class AttributeValueConfiguration : IEntityTypeConfiguration<AttributeVal
             .HasMaxLength(400)
             .IsRequired();
 
-
-        builder.HasOne(x => x.Attribute)
+        builder.HasOne(x => x.CategoryToAttribute)
             .WithMany(x => x.AttributeValues)
-            .HasForeignKey(x => x.AttributeId)
+            .HasForeignKey(x => x.CategoryAttributeId)
             .IsRequired(false);
+        
+
+        // builder.HasOne(x => x.Attribute)
+        //     .WithMany(x => x.AttributeValues)
+        //     .HasForeignKey(x => x.AttributeId)
+        //     .IsRequired(false);
+        //.OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+public class CategoryToAttributeConfiguration : IEntityTypeConfiguration<CategoryToAttribute>
+{
+    public void Configure(EntityTypeBuilder<CategoryToAttribute> builder)
+    {
+        builder.ToTable("Category_To_Attribute", "Trendyol");
+        builder.HasKey(x => x.Id);
+
+
+        builder.HasOne(bc => bc.Attribute)
+            .WithMany(b => b.CategoryToAttributes)
+            .HasForeignKey(bc => bc.AttributeId);  
+        builder.HasOne(bc => bc.Category)
+            .WithMany(c => c.CategoryToAttributes)
+            .HasForeignKey(bc => bc.CategoryId);
+        
         //.OnDelete(DeleteBehavior.Restrict);
     }
 }

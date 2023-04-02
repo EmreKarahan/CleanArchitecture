@@ -34,6 +34,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
     public DbSet<Domain.Entities.Trendyol.AttributeValue> TrendyolAttributeValue =>
         Set<Domain.Entities.Trendyol.AttributeValue>();
+    
+    public DbSet<Domain.Entities.Trendyol.CategoryToAttribute> TrendyolCategoryToAttribute =>
+        Set<Domain.Entities.Trendyol.CategoryToAttribute>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -10,9 +10,9 @@ public class Attribute : BaseEntity
     public bool AllowCustom { get; set; }
     public bool Varianter { get; set; }
     public bool Slicer { get; set; }
-    public int CategoryId { get; set; }
-
-    public virtual Category Category { get; set; }
-    public virtual List<AttributeValue> AttributeValues { get; set; }
     public string? DisplayName { get; set; }
+    
+    public virtual List<AttributeValue> AttributeValues { get; set; }
+    public virtual ICollection<CategoryToAttribute> CategoryToAttributes { get; set; }
+
 }

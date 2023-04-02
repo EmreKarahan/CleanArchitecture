@@ -1,4 +1,5 @@
 using Application.Common.Interfaces;
+using Domain.Entities.Trendyol;
 using Domain.Events.Trendyol;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -7,8 +8,7 @@ using Attribute = Domain.Entities.Trendyol.Attribute;
 
 namespace Application.Trendyol.Commands;
 
-
-public class CreateAttributeCommand : IRequest<int>
+public class CreateAttributeCommand : IRequest<Attribute>
 {
     public long InternalId { get; set; }
     public int CategoryId { get; set; }
@@ -19,7 +19,7 @@ public class CreateAttributeCommand : IRequest<int>
     public bool Varianter { get; set; }
 }
 
-public class CreateAttributeCommandHandler : IRequestHandler<CreateAttributeCommand, int>
+public class CreateAttributeCommandHandler : IRequestHandler<CreateAttributeCommand, Attribute>
 {
     private readonly IApplicationDbContext _context;
     readonly ILogger<CreateAttributeCommandHandler> _logger;
@@ -30,33 +30,62 @@ public class CreateAttributeCommandHandler : IRequestHandler<CreateAttributeComm
         _logger = logger;
     }
 
-    public async Task<int> Handle(CreateAttributeCommand request, CancellationToken cancellationToken)
+    public async Task<Attribute> Handle(CreateAttributeCommand request, CancellationToken cancellationToken)
     {
+        var attributeCheck = await _context.TrendyolAttribute.AsQueryable()
+            .FirstOrDefaultAsync(f =>
+                f.InternalId == request.InternalId, cancellationToken: cancellationToken);
 
-        var attributeCheck = await _context.TrendyolAttribute.AsQueryable().FirstOrDefaultAsync(f =>
-            f.InternalId == request.InternalId && f.CategoryId == request.CategoryId, cancellationToken: cancellationToken);
-
-        if (attributeCheck is not null)
-            return attributeCheck.Id;
-        
-        var entity = new Attribute
+        if (attributeCheck is null)
         {
-            InternalId = request.InternalId,
-            CategoryId = request.CategoryId,
-            Name = request.Name,
-            Required = request.Required,
-            AllowCustom = request.AllowCustom,
-            Slicer = request.Slicer,
-            Varianter = request.Varianter,
-        };
+            var entity = new Attribute
+            {
+                InternalId = request.InternalId,
+                //CategoryId = request.CategoryId,
+                Name = request.Name,
+                Required = request.Required,
+                AllowCustom = request.AllowCustom,
+                Slicer = request.Slicer,
+                Varianter = request.Varianter,
+            };
 
-        entity.AddDomainEvent(new AttributeCreatedEvent(entity));
 
-        _context.TrendyolAttribute.Add(entity);
+            entity.AddDomainEvent(new AttributeCreatedEvent(entity));
 
-        await _context.SaveChangesAsync(cancellationToken);
-        _logger.LogInformation($"{entity.Name} attribute created. - {entity.Id}");
+            _context.TrendyolAttribute.Add(entity);
+            await _context.SaveChangesAsync(cancellationToken);
 
-        return entity.Id;
+            var categoryToAttributeEntity = new CategoryToAttribute
+            {
+                CategoryId = request.CategoryId, AttributeId = entity.Id
+            };
+            
+            _context.TrendyolCategoryToAttribute.Add(categoryToAttributeEntity);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation($"{entity.Name} attribute created. - {entity.Id}");
+
+            return entity;
+        }
+
+        var categoryAttributeCheck = await _context.TrendyolAttribute.AsQueryable()
+            .Include(f => f.CategoryToAttributes)
+            .FirstOrDefaultAsync(f =>
+                    f.InternalId == request.InternalId &&
+                    f.CategoryToAttributes.Any(a => a.CategoryId == request.CategoryId),
+                cancellationToken: cancellationToken);
+
+        if (categoryAttributeCheck is null)
+        {
+            var categoryToAttributeEntity = new CategoryToAttribute
+            {
+                CategoryId = request.CategoryId, AttributeId = attributeCheck.Id
+            };
+
+            _context.TrendyolCategoryToAttribute.Add(categoryToAttributeEntity);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        return attributeCheck;
     }
 }

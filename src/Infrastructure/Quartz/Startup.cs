@@ -111,7 +111,9 @@ public static class Startup
                     x => x.InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul")));
             if (jobAttribute.StartNow)
             {
-                triggerBuilder.StartNow();
+                triggerBuilder.WithSimpleSchedule(x => x.WithMisfireHandlingInstructionFireNow());
+                triggerBuilder.StartAt(DateTimeOffset.Now.AddSeconds(10));
+                //triggerBuilder.StartNow();
             }
 
             var trigger = triggerBuilder.Build();

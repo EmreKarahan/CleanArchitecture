@@ -15,7 +15,7 @@ public interface IApplicationDbContext
     DbSet<Domain.Entities.Trendyol.Category> TrendyolCategory { get; }
     DbSet<Domain.Entities.Trendyol.Attribute> TrendyolAttribute { get; }
     DbSet<Domain.Entities.Trendyol.AttributeValue> TrendyolAttributeValue { get; }
-
+    DbSet<Domain.Entities.Trendyol.CategoryToAttribute> TrendyolCategoryToAttribute { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
 
