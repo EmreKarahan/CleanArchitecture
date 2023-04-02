@@ -15,7 +15,7 @@ builder.Services.AddWebUIServices();
 
 var app = builder.Build();
 
-app.UseInfrastructureServices(app.Environment);
+app.UseInfrastructureServices(app.Environment, app.Configuration);
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

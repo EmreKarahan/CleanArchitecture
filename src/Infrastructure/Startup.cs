@@ -1,5 +1,6 @@
 ﻿using Infrastructure.Caching;
 using Infrastructure.Files;
+using Infrastructure.OpenApi;
 using Infrastructure.Quartz;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Hosting;
@@ -18,12 +19,14 @@ public static class Startup
         services.AddPersistence(configuration);
         services.AddCaching(configuration);
         services.AddScheduledJob(configuration);
+        services.AddOpenApiDocumentation(configuration);
         
         return services;
     }
 
 
-    public static IApplicationBuilder UseInfrastructureServices(this IApplicationBuilder app, IWebHostEnvironment environment)
+    public static IApplicationBuilder UseInfrastructureServices(this IApplicationBuilder app,
+        IWebHostEnvironment environment, IConfiguration appConfiguration)
     {
         if (environment.IsDevelopment())
         {
@@ -35,6 +38,7 @@ public static class Startup
         }
 
         app.UseCaching();
+        app.UseOpenApiDocumentation(appConfiguration);
         return app;
     }
 }
