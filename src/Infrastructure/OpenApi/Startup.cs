@@ -90,14 +90,14 @@ internal static class Startup
 
     internal static IApplicationBuilder UseOpenApiDocumentation(this IApplicationBuilder app, IConfiguration config)
     {
-        if (config.GetValue<bool>("SwaggerSettings:Enable"))
-        {
+        //if (config.GetValue<bool>("SwaggerSettings:Enable"))
+        //{
             app.UseOpenApi();
             app.UseSwaggerUi3(options =>
             {
-                options.DefaultModelsExpandDepth = -1;
-                options.DocExpansion = "none";
-                options.TagsSorter = "alpha";
+                // options.DefaultModelsExpandDepth = -1;
+                // options.DocExpansion = "none";
+                // options.TagsSorter = "alpha";
                 // if (config["SecuritySettings:Provider"].Equals("AzureAd", StringComparison.OrdinalIgnoreCase))
                 // {
                 //     options.OAuth2Client = new OAuth2ClientSettings
@@ -110,7 +110,7 @@ internal static class Startup
                 //     options.OAuth2Client.Scopes.Add(config["SecuritySettings:Swagger:ApiScope"]);
                 // }
             });
-        }
+       // }
 
         return app;
     }
