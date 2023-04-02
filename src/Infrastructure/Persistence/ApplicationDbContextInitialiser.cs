@@ -20,6 +20,7 @@ public class ApplicationDbContextInitialiser
         {
             if (_context.Database.IsNpgsql())
             {
+                await _context.Database.EnsureCreatedAsync();
                 await _context.Database.MigrateAsync();
             }
         }

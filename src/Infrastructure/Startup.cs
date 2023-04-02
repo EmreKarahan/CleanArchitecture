@@ -18,8 +18,12 @@ public static class Startup
         
         services.AddPersistence(configuration);
         services.AddCaching(configuration);
-        services.AddScheduledJob(configuration);
         services.AddOpenApiDocumentation(configuration);
+        
+        //var context = services.BuildServiceProvider().GetRequiredService<ApplicationDbContext>();
+        //if(!context.Database.GetPendingMigrations().Any()){
+            //services.AddScheduledJob(configuration);
+        //}
         
         return services;
     }
